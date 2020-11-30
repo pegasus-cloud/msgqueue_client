@@ -9,7 +9,7 @@ import (
 // Consume ...
 func (a *AMQP) Consume(name string, contentSize int) (msgs <-chan amqp.Delivery, err error) {
 
-	err = a.getChannel().Qos(
+	err = GetChannel().Qos(
 		contentSize, // prefetch count
 		0,           // prefetch size
 		false,       // global
@@ -17,7 +17,7 @@ func (a *AMQP) Consume(name string, contentSize int) (msgs <-chan amqp.Delivery,
 	if err != nil {
 		return msgs, fmt.Errorf("[RabbitMQ](name: %s, contentSize: %d): Failed to set QoS: %v", name, contentSize, err)
 	}
-	msgs, err = a.getChannel().Consume(
+	msgs, err = GetChannel().Consume(
 		name,  // queue
 		"",    // consumer
 		false, // auto-ack

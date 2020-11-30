@@ -9,6 +9,10 @@ import (
 	"github.com/streadway/amqp"
 )
 
+var (
+	globalConn *AMQP
+)
+
 type amqpConn struct {
 	connection *amqp.Connection
 	channel    map[int]*amqp.Channel
@@ -42,6 +46,7 @@ func (a *AMQP) Connect() (err error) {
 			return err
 		}
 	}
+	globalConn = a
 
 	return nil
 }

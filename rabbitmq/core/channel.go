@@ -23,10 +23,16 @@ func (ac *amqpConn) makeChannel(ch int) (err error) {
 	return nil
 }
 
-func (a *AMQP) getChannel() *amqp.Channel {
+// GetChannel return channel of msgqueue
+func GetChannel() *amqp.Channel {
 	rand.Seed(time.Now().UnixNano())
-	con := rand.Intn(a.ConnectionNum)
-	ch := rand.Intn(a.ChannelNum)
+	con := rand.Intn(globalConn.ConnectionNum)
+	ch := rand.Intn(globalConn.ChannelNum)
 
-	return a.amqpConn[con].channel[ch]
+	return globalConn.amqpConn[con].channel[ch]
+}
+
+// GetAMQP return globalAMQP struct
+func GetAMQP() *AMQP {
+	return globalConn
 }

@@ -18,7 +18,7 @@ func (cfg *Config) CreateQueue(name, dlqName string, len, ttl int) (err error) {
 	if qName == "" {
 		return
 	}
-	err = cfg.bindExchange(cfg.Queue.DeadLetterExchange, dlqName, cfg.Queue.DeadLetterRoutingKey)
+	err = cfg.bindExchange(cfg.DeadLetterExchange, dlqName, name+".dlx")
 
 	return
 }
@@ -27,7 +27,7 @@ func (cfg *Config) createQueue(name string, len, ttl int) error {
 
 	b, _, s, err := utility.SendRequest(
 		"PUT",
-		cfg.getURL(fmt.Sprintf("queues/%s/%s", cfg.AMQP.Vhost, name)),
+		cfg.getURL(fmt.Sprintf("queues/%s/%s", core.GetAMQP().Vhost, name)),
 		map[string]string{
 			core.ContentType: core.ApplicationJSON,
 		},
@@ -37,8 +37,8 @@ func (cfg *Config) createQueue(name string, len, ttl int) error {
 			Arguments: core.QueueAgmt{
 				MaxLength:            len,
 				MessageTTL:           ttl * 1000,
-				DeadLetterExchange:   cfg.Queue.DeadLetterExchange,
-				DeadLetterRoutingKey: cfg.Queue.DeadLetterRoutingKey,
+				DeadLetterExchange:   cfg.DeadLetterExchange,
+				DeadLetterRoutingKey: name + ".dlx",
 			},
 		},
 	)
@@ -58,7 +58,7 @@ func (cfg *Config) bindExchange(ename, qname, rkey string) error {
 
 	b, _, s, err := utility.SendRequest(
 		"POST",
-		cfg.getURL(fmt.Sprintf("bindings/%s/e/%s/q/%s", cfg.AMQP.Vhost, ename, qname)),
+		cfg.getURL(fmt.Sprintf("bindings/%s/e/%s/q/%s", core.GetAMQP().Vhost, ename, qname)),
 		map[string]string{
 			core.ContentType: core.ApplicationJSON,
 		},

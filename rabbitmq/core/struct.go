@@ -36,4 +36,9 @@ type (
 		HaSyncMode    string `json:"ha-sync-mode,omitempty"`
 		ShardsPerNode int    `json:"shards-per-node,omitempty"`
 	}
+
+	// BindBody ...
+	BindBody struct {
+		RouteingKey string `json:"routing_key"`
+	}
 )

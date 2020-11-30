@@ -19,7 +19,7 @@ func (cfg *Config) DeleteQueue(name, dlqName string) (err error) {
 		return
 	}
 
-	err = cfg.unBindExchange(cfg.DeadLetterExchange, dlqName, cfg.DeadLetterRoutingKey)
+	err = cfg.unBindExchange(cfg.DeadLetterExchange, dlqName, name+".dlx")
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func (cfg *Config) deleteQueue(name string) error {
 
 	b, _, s, err := utility.SendRequest(
 		"DELETE",
-		cfg.getURL(fmt.Sprintf("queues/%s/%s", cfg.AMQP.Vhost, name)),
+		cfg.getURL(fmt.Sprintf("queues/%s/%s", core.GetAMQP().Vhost, name)),
 		nil,
 		nil,
 	)
@@ -52,7 +52,7 @@ func (cfg *Config) unBindExchange(ename, qname, rkey string) error {
 
 	b, _, s, err := utility.SendRequest(
 		"DELETE",
-		cfg.getURL(fmt.Sprintf("bindings/%s/e/%s/q/%s/%s", cfg.AMQP.Vhost, ename, qname, rkey)),
+		cfg.getURL(fmt.Sprintf("bindings/%s/e/%s/q/%s/%s", core.GetAMQP().Vhost, ename, qname, rkey)),
 		map[string]string{
 			core.ContentType: core.ApplicationJSON,
 		},
