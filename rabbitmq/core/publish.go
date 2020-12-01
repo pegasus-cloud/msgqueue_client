@@ -7,7 +7,7 @@ import (
 // Publish ...
 func (a *AMQP) Publish(ename, qname, mid, payload string, headers map[string]interface{}) (err error) {
 
-	err = GetChannel().Publish(ename, qname, false, false, amqp.Publishing{
+	con, ch, err = GetChannel().Publish(ename, qname, false, false, amqp.Publishing{
 		Headers:      headers,
 		MessageId:    mid,
 		DeliveryMode: amqp.Persistent,
@@ -17,5 +17,7 @@ func (a *AMQP) Publish(ename, qname, mid, payload string, headers map[string]int
 	if err != nil {
 		return err
 	}
+	defer ReleaseChannel(con, ch)
+
 	return nil
 }

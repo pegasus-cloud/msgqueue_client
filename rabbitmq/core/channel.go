@@ -3,9 +3,14 @@ package core
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/streadway/amqp"
+)
+
+var (
+	chL sync.Mutex
 )
 
 func (ac *amqpConn) makeChannel(ch int) (err error) {
@@ -24,12 +29,35 @@ func (ac *amqpConn) makeChannel(ch int) (err error) {
 }
 
 // GetChannel return channel of msgqueue
-func GetChannel() *amqp.Channel {
+func GetChannel() (con, ch int, cha *amqp.Channel) {
+	chL.Lock()
 	rand.Seed(time.Now().UnixNano())
-	con := rand.Intn(globalConn.ConnectionNum)
-	ch := rand.Intn(globalConn.ChannelNum)
+	for {
+		con = rand.Intn(globalConn.ConnectionNum)
+		if len(idleChannel[con]) != 0 {
+			break
+		}
+	}
 
-	return globalConn.amqpConn[con].channel[ch]
+	ch = globalConn.idleChannel[con][0]
+	cha = globalConn.amqpConn[con].channel[ch]
+	if len(idleChannel[con]) > 1 {
+		globalConn.idleChannel[con] = globalConn.idleChannel[con][1:]
+	} else {
+		globalConn.idleChannel[con] = []int{}
+	}
+	chL.Unlock()
+	return
+}
+
+// ReleaseChannel release channel resource
+func ReleaseChannel(con, ch int) (err error) {
+	chL.Lock()
+	err = globalConn.amqpConn[con].channel[ch].Close()
+	globalConn.idleChannel[con] = append(globalConn.idleChannel[con], ch)
+	chL.Unlock()
+
+	return
 }
 
 // GetAMQP return globalAMQP struct

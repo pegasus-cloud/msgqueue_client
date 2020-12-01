@@ -34,7 +34,8 @@ type AMQP struct {
 	ConnectionNum int
 	ChannelNum    int
 
-	amqpConn map[int]*amqpConn
+	amqpConn    map[int]*amqpConn
+	idleChannel map[int][]int
 }
 
 // Connect rabbitmq server
@@ -42,6 +43,7 @@ func (a *AMQP) Connect() (err error) {
 	a.amqpConn = make(map[int]*amqpConn)
 	for con := 0; con < a.ConnectionNum; con++ {
 		a.amqpConn[con] = new(amqpConn)
+		a.idleChannel[con] = []int{}
 		if err = a.connect(con); err != nil {
 			return err
 		}
@@ -63,6 +65,7 @@ func (a *AMQP) connect(con int) (err error) {
 			return
 		}
 		go a.ReConnect(con, ch)
+		a.idleChannel[con] = append(a.idleChannel[con], ch)
 	}
 
 	return
