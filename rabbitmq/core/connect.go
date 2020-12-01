@@ -40,15 +40,16 @@ type AMQP struct {
 
 // Connect rabbitmq server
 func (a *AMQP) Connect() (err error) {
+	globalConn = a
+
 	a.amqpConn = make(map[int]*amqpConn)
+	a.idleChannel = make(map[int][]int)
 	for con := 0; con < a.ConnectionNum; con++ {
 		a.amqpConn[con] = new(amqpConn)
-		a.idleChannel[con] = []int{}
 		if err = a.connect(con); err != nil {
 			return err
 		}
 	}
-	globalConn = a
 
 	return nil
 }
@@ -61,11 +62,10 @@ func (a *AMQP) connect(con int) (err error) {
 	a.amqpConn[con].channel = make(map[int]*amqp.Channel)
 	a.amqpConn[con].chanNotify = make(map[int]chan *amqp.Error)
 	for ch := 0; ch < a.ChannelNum; ch++ {
-		if err = a.amqpConn[con].makeChannel(ch); err != nil {
+		if err = makeChannel(con, ch); err != nil {
 			return
 		}
 		go a.ReConnect(con, ch)
-		a.idleChannel[con] = append(a.idleChannel[con], ch)
 	}
 
 	return
@@ -105,6 +105,6 @@ func (a *AMQP) makeConnection(con int) (err error) {
 	a.amqpConn[con].connection = conn
 	a.amqpConn[con].quit = make(chan bool)
 	a.amqpConn[con].connNotify = conn.NotifyClose(make(chan *amqp.Error))
-
+	a.idleChannel[con] = []int{}
 	return nil
 }

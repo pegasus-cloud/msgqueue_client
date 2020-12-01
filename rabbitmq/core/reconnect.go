@@ -14,7 +14,17 @@ func (a *AMQP) ReConnect(con, ch int) {
 	for {
 		select {
 		case <-a.amqpConn[con].connNotify:
+			l.Lock()
+			a.idleChannel[con] = []int{}
+			l.Unlock()
 		case <-a.amqpConn[con].chanNotify[ch]:
+			for k, v := range a.idleChannel[con] {
+				if v == ch {
+					l.Lock()
+					a.idleChannel[con] = append(a.idleChannel[con][0:k], a.idleChannel[con][k+1:]...)
+					l.Unlock()
+				}
+			}
 		case <-a.amqpConn[con].quit:
 		}
 	quit:
@@ -40,7 +50,7 @@ func (a *AMQP) ReConnect(con, ch int) {
 				// sleep 5s reconnect
 				time.Sleep(time.Second * 5)
 				l.Lock()
-				if err := a.amqpConn[con].makeChannel(ch); err != nil {
+				if err := makeChannel(con, ch); err != nil {
 					l.Unlock()
 					continue
 				}
