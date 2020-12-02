@@ -7,19 +7,14 @@ import (
 	"github.com/streadway/amqp"
 )
 
-// ReceiveMessage use amqp consume and nack message to requeue message
+// ReceiveMessage use amqp get and nack message to requeue messageuse. Checking function check deleted message and Receiving function receive message and append to output struct
 func (cfg *Config) ReceiveMessage(name string, tgtsize int, del Checking, rec Receiving) (err error) {
 	var (
 		d    amqp.Delivery
 		ok   bool
 		size = 0
 	)
-	// msg.Nack(false, true)
 
-	// msgs, err := core.GetAMQP().Consume(name, tgtsize)
-	// if err != nil {
-	// 	return err
-	// }
 	con, ch, cha := core.GetChannel()
 	defer core.ReleaseChannel(con, ch)
 
