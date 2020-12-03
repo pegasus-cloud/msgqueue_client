@@ -10,7 +10,8 @@ import (
 type (
 	// Config define rabbitmq connection config
 	Config struct {
-		DeadLetterExchange string
+		DeadLetterExchange    string
+		ShardingQueueExchange string
 	}
 
 	// Queue ...
