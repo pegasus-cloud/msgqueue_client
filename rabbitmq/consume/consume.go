@@ -1,4 +1,4 @@
-package queue
+package consume
 
 import (
 	"fmt"
@@ -20,11 +20,4 @@ func (cfg *Config) ConsumeWithFunc(id, qname string, msgsFunc func(amqp.Delivery
 	}
 
 	return fmt.Errorf("[RabbitMQ]%s: consumer is closed", qname)
-}
-
-type messageBody struct {
-	Properties      struct{} `json:"properties"`
-	RoutingKey      string   `json:"routing_key"`
-	Payload         string   `json:"payload"`
-	PayloadEncoding string   `json:"payload_encoding"`
 }
