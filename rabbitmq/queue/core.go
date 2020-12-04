@@ -8,7 +8,7 @@ import (
 )
 
 type (
-	// Config define rabbitmq connection config
+	// Config define rabbitmq queue config
 	Config struct {
 		DeadLetterExchange    string
 		ShardingQueueExchange string

@@ -4,7 +4,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-// Config define rabbitmq connection config
+// Config define rabbitmq message config
 type Config struct{}
 
 // Checking ...
