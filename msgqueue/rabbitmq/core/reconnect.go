@@ -9,8 +9,7 @@ var (
 	l sync.Mutex
 )
 
-// ReConnect ...
-func (a *AMQP) ReConnect(con, ch int) {
+func (a *AMQP) reConnect(con, ch int) {
 	for {
 		select {
 		case <-a.amqpConn[con].connNotify:
@@ -50,7 +49,7 @@ func (a *AMQP) ReConnect(con, ch int) {
 				// sleep 5s reconnect
 				time.Sleep(time.Second * 5)
 				l.Lock()
-				if err := makeChannel(con, ch); err != nil {
+				if err := a.makeChannel(con, ch); err != nil {
 					l.Unlock()
 					continue
 				}

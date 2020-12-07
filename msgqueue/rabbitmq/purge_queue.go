@@ -1,19 +1,18 @@
-package queue
+package rabbitmq
 
 import (
 	"fmt"
 	"net/http"
 
-	"github.com/pegasus-cloud/ceph_client/ceph/utility"
-	"github.com/pegasus-cloud/msgqueue_client/rabbitmq/core"
+	"github.com/pegasus-cloud/msgqueue_client/msgqueue/utility"
 )
 
-// PurgeQueue ...
-func (cfg *Config) PurgeQueue(name string) error {
+// Purge ...
+func (q *QueueMethod) Purge(name string) error {
 
 	b, _, s, err := utility.SendRequest(
 		"DELETE",
-		cfg.getURL(fmt.Sprintf("queues/%s/%s/contents", core.GetAMQP().Vhost, name)),
+		q.getURL(fmt.Sprintf("queues/%s/%s/contents", q.Provider.AMQP.Vhost, name)),
 		nil,
 		nil,
 	)

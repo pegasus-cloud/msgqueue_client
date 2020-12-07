@@ -1,4 +1,4 @@
-package queue
+package rabbitmq
 
 import (
 	"encoding/json"
@@ -6,16 +6,16 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pegasus-cloud/ceph_client/ceph/utility"
-	"github.com/pegasus-cloud/msgqueue_client/rabbitmq/core"
+	"github.com/pegasus-cloud/msgqueue_client/msgqueue/common"
+	"github.com/pegasus-cloud/msgqueue_client/msgqueue/utility"
 )
 
-// GetQueue ...
-func (cfg *Config) GetQueue(name string) (*Queue, error) {
+// Get ...
+func (q *QueueMethod) Get(name string) (*common.Queue, error) {
 
 	b, _, s, err := utility.SendRequest(
 		"GET",
-		cfg.getURL(fmt.Sprintf("queues/%s/%s", core.GetAMQP().Vhost, url.PathEscape(name))),
+		q.getURL(fmt.Sprintf("queues/%s/%s", q.Provider.AMQP.Vhost, url.PathEscape(name))),
 		nil,
 		nil,
 	)
@@ -32,5 +32,5 @@ func (cfg *Config) GetQueue(name string) (*Queue, error) {
 		return nil, err
 	}
 
-	return queueInfo, nil
+	return parseQueueStruct(queueInfo), nil
 }

@@ -9,10 +9,6 @@ import (
 	"github.com/streadway/amqp"
 )
 
-var (
-	globalConn *AMQP
-)
-
 type amqpConn struct {
 	connection *amqp.Connection
 	channel    map[int]*amqp.Channel
@@ -34,14 +30,16 @@ type AMQP struct {
 	ConnectionNum int
 	ChannelNum    int
 
+	DeadLetterExchange    string
+	ShardingQueueExchange string
+	DelayMessageExchange  string
+
 	amqpConn    map[int]*amqpConn
 	idleChannel map[int][]int
 }
 
 // Connect rabbitmq server
 func (a *AMQP) Connect() (err error) {
-	globalConn = a
-
 	a.amqpConn = make(map[int]*amqpConn)
 	a.idleChannel = make(map[int][]int)
 	for con := 0; con < a.ConnectionNum; con++ {
@@ -58,14 +56,14 @@ func (a *AMQP) connect(con int) (err error) {
 	if err = a.makeConnection(con); err != nil {
 		return
 	}
-	go a.ReConnect(con, -1)
+	go a.reConnect(con, -1)
 	a.amqpConn[con].channel = make(map[int]*amqp.Channel)
 	a.amqpConn[con].chanNotify = make(map[int]chan *amqp.Error)
 	for ch := 0; ch < a.ChannelNum; ch++ {
-		if err = makeChannel(con, ch); err != nil {
+		if err = a.makeChannel(con, ch); err != nil {
 			return
 		}
-		go a.ReConnect(con, ch)
+		go a.reConnect(con, ch)
 	}
 
 	return

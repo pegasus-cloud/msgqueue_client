@@ -1,15 +1,14 @@
-package consume
+package rabbitmq
 
 import (
 	"fmt"
 
-	"github.com/pegasus-cloud/msgqueue_client/rabbitmq/core"
 	"github.com/streadway/amqp"
 )
 
 // ConsumeWithFunc define consume function
-func (cfg *Config) ConsumeWithFunc(id, qname string, msgsFunc func(amqp.Delivery)) error {
-	msgs, err := core.GetAMQP().Consume(qname, 1)
+func (q *QueueMethod) ConsumeWithFunc(id, qname string, msgsFunc func(amqp.Delivery)) error {
+	msgs, err := q.Provider.AMQP.Consume(qname, 1)
 	if err != nil {
 		return fmt.Errorf("[RabbitMQ]%s: %v", qname, err)
 	}

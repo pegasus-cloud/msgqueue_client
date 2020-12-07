@@ -8,7 +8,7 @@ import (
 
 // Consume ...
 func (a *AMQP) Consume(name string, contentSize int) (msgs <-chan amqp.Delivery, err error) {
-	_, _, cha := GetChannel()
+	_, _, cha := a.GetChannel()
 
 	err = cha.Qos(
 		contentSize, // prefetch count
