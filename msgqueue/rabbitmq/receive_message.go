@@ -1,8 +1,6 @@
 package rabbitmq
 
 import (
-	"fmt"
-
 	"github.com/pegasus-cloud/msgqueue_client/msgqueue/common"
 	"github.com/streadway/amqp"
 )
@@ -20,7 +18,6 @@ func (q *QueueMethod) ReceiveMessage(name string, tgtsize int, del common.Checki
 
 	for {
 		d, ok, err = cha.Get(name, false)
-		fmt.Println(ok, size, tgtsize, err)
 		if !ok || size == tgtsize {
 			d.Nack(true, true)
 			break
@@ -28,7 +25,8 @@ func (q *QueueMethod) ReceiveMessage(name string, tgtsize int, del common.Checki
 		if deleted, mesgAttr := del(d.MessageId); deleted {
 			d.Ack(false)
 		} else {
-			rec(d, mesgAttr)
+			d.Headers["Timestamp"] = d.Timestamp
+			rec(d.MessageId, d.Headers, d.Body, mesgAttr)
 			size++
 			// d.Nack(false, true)
 		}

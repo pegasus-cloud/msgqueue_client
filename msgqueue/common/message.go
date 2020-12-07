@@ -1,7 +1,5 @@
 package common
 
-import "github.com/streadway/amqp"
-
 type (
 	MessageInterface interface {
 		SendMessage(name, rKey, mid, payload string, headers map[string]interface{}) (err error)
@@ -11,5 +9,5 @@ type (
 	Checking func(messageIDs string) (deleted bool, iMetadata []byte)
 
 	// Receiving ...
-	Receiving func(d amqp.Delivery, iMetadata []byte)
+	Receiving func(messageIDs string, headers map[string]interface{}, body, iMetadata []byte)
 )
