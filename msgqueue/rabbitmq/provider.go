@@ -1,7 +1,11 @@
 package rabbitmq
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/pegasus-cloud/msgqueue_client/msgqueue/rabbitmq/core"
+	"github.com/pegasus-cloud/msgqueue_client/msgqueue/utility"
 
 	"github.com/streadway/amqp"
 )
@@ -38,6 +42,7 @@ func (r *Provider) Prepare() {
 
 // Connect rabbitmq server
 func (r *Provider) Connect() (err error) {
+	r.checkVhost()
 	if err = r.AMQP.Connect(); err != nil {
 		return
 	}
@@ -65,4 +70,25 @@ func (r *Provider) Close() {
 func (r *Provider) Setup() {
 	r.Method.Queue.Setup()
 	return
+}
+
+func (r *Provider) checkVhost() error {
+	b, _, s, err := utility.SendRequest(
+		"PUT",
+		r.Method.Queue.getURL(fmt.Sprintf("vhosts/%s", r.AMQP.Vhost)),
+		map[string]string{
+			ContentType: ApplicationJSON,
+		},
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	if s != http.StatusNoContent && s != http.StatusCreated {
+		return fmt.Errorf(string(b))
+	}
+
+	return nil
+
 }
