@@ -11,16 +11,16 @@ import (
 // Setup triton massage queue service
 func (q *QueueMethod) Setup() error {
 	if err := q.declareExchange(q.Provider.AMQP.DeadLetterExchange, "direct", nil); err != nil {
-		return err
+		return fmt.Errorf("declare exchange failed: name: %s, type: %s, message: %v", q.Provider.AMQP.DeadLetterExchange, "direct", err)
 	}
 	if err := q.declareExchange(q.Provider.AMQP.ShardingQueueExchange, "x-modulus-hash", nil); err != nil {
-		return err
+		return fmt.Errorf("declare exchange failed: name: %s, type: %s, message: %v", q.Provider.AMQP.ShardingQueueExchange, "x-modulus-hash", err)
 	}
 	if err := q.declareExchange(q.Provider.AMQP.DelayMessageExchange, "x-delayed-message", amqp.Table{"x-delayed-type": "x-modulus-hash"}); err != nil {
-		return err
+		return fmt.Errorf("declare exchange failed: name: %s, type: %s, message: %v", q.Provider.AMQP.DelayMessageExchange, "x-delayed-message", err)
 	}
 	if err := q.bindExchange(q.Provider.AMQP.DelayMessageExchange, q.Provider.AMQP.ShardingQueueExchange, ""); err != nil {
-		return err
+		return fmt.Errorf("bind exchange failed: name: %s to %s, message: %v", q.Provider.AMQP.DelayMessageExchange, q.Provider.AMQP.ShardingQueueExchange, err)
 	}
 
 	if err := q.createPolicy(RabbitMQHaMode, "", "queues", Definition{
@@ -28,13 +28,13 @@ func (q *QueueMethod) Setup() error {
 		HaParam:    2,
 		HaSyncMode: "automatic",
 	}); err != nil {
-		return err
+		return fmt.Errorf("create policy failed: mode: %s, message: %v", RabbitMQHaMode, err)
 	}
 
 	if err := q.createPolicy(RabbitMQShardMode, "^sns.sharding$", "exchanges", Definition{
 		ShardsPerNode: 2,
 	}); err != nil {
-		return err
+		return fmt.Errorf("create policy failed: mode: %s, message: %v", RabbitMQShardMode, err)
 	}
 
 	return nil
