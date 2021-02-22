@@ -12,6 +12,8 @@ const (
 	ApplicationJSON   = "application/json"
 	RabbitMQHaMode    = "ha-mode"
 	RabbitMQShardMode = "sharding-mode"
+
+	Success = "Success"
 )
 
 type (
@@ -99,6 +101,9 @@ type (
 
 func parseMsgQueueName(name string) (accountID, queueName string) {
 	msgq := strings.Split(name, "@")
+	if len(msgq) < 2 {
+		return
+	}
 
 	return msgq[0], msgq[1]
 }

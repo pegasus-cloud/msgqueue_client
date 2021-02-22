@@ -26,6 +26,7 @@ type AMQP struct {
 	Port          int
 	HTTPPort      int
 	Timeout       int
+	RPCTimeout    int
 	Vhost         string
 	ConnectionNum int
 	ChannelNum    int
