@@ -1,11 +1,11 @@
 package core
 
 // CreateExclusiveQueue ...
-func (a *AMQP) CreateExclusiveQueue() (qname string, err error) {
+func (a *AMQP) CreateExclusiveQueue(rkey string) (qname string, err error) {
 	con, ch, cha := a.GetChannel()
 	defer a.ReleaseChannel(con, ch)
 	q, err := cha.QueueDeclare(
-		"",    // name
+		rkey,  // name
 		false, // durable
 		false, // delete when unused
 		true,  // exclusive

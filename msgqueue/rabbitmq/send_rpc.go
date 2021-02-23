@@ -10,7 +10,7 @@ func (q *QueueMethod) SendRPC(name, rKey, replyTo, payload string) (res string, 
 
 	t := time.Now()
 	cid := "cid"
-	qname, err := q.Provider.AMQP.CreateExclusiveQueue()
+	qname, err := q.Provider.AMQP.CreateExclusiveQueue(replyTo)
 	if err != nil {
 		return "", err
 	}

@@ -13,6 +13,7 @@ import (
 type QueueFunc interface {
 	common.QueueInterface
 	common.MessageInterface
+	common.RPCInterface
 }
 
 var provider Provider
