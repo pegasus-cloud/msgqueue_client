@@ -1,6 +1,7 @@
 package common
 
 type (
+	// MessageInterface ...
 	MessageInterface interface {
 		SendMessage(name, rKey, mid, payload string, headers map[string]interface{}) (err error)
 		ReceiveMessage(name string, tgtsize int, del Checking, rec Receiving) (err error)
