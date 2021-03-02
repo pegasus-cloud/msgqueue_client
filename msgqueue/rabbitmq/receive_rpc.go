@@ -6,8 +6,8 @@ import (
 
 // ReceiveRPC receive rpc message
 func (q *QueueMethod) ReceiveRPC(name string, del common.Delivering) (err error) {
-
-	msgs, err := q.Provider.AMQP.Consume(name, 1)
+	_, _, cha := q.Provider.AMQP.GetChannel()
+	msgs, err := q.Provider.AMQP.Consume(name, 1, cha)
 	if err != nil {
 		return err
 	}
@@ -16,6 +16,5 @@ func (q *QueueMethod) ReceiveRPC(name string, del common.Delivering) (err error)
 			return err
 		}
 	}
-
 	return nil
 }

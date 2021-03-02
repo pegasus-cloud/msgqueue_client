@@ -1,9 +1,9 @@
 package core
 
+import "github.com/streadway/amqp"
+
 // CreateExclusiveQueue ...
-func (a *AMQP) CreateExclusiveQueue(rkey string) (qname string, err error) {
-	con, ch, cha := a.GetChannel()
-	defer a.ReleaseChannel(con, ch)
+func (a *AMQP) CreateExclusiveQueue(rkey string, cha *amqp.Channel) (qname string, err error) {
 	q, err := cha.QueueDeclare(
 		rkey,  // name
 		false, // durable
