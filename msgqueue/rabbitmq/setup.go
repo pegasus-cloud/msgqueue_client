@@ -41,10 +41,11 @@ func (q *QueueMethod) Setup() error {
 }
 
 func (q *QueueMethod) declareExchange(ename, etype string, arg amqp.Table) error {
-	con, ch, cha := q.Provider.AMQP.GetChannel()
-	defer q.Provider.AMQP.ReleaseChannel(con, ch)
+	ch := q.Provider.AMQP.GetChannel()
+	defer q.Provider.AMQP.ReleaseChannel(ch)
+	_, _, amqpChan := ch.GetInfo()
 
-	return cha.ExchangeDeclare(
+	return amqpChan.ExchangeDeclare(
 		ename, // name
 		etype, // type
 		true,  // durable
@@ -56,11 +57,11 @@ func (q *QueueMethod) declareExchange(ename, etype string, arg amqp.Table) error
 }
 
 func (q *QueueMethod) bindExchange(src, dest, rkey string) error {
+	ch := q.Provider.AMQP.GetChannel()
+	defer q.Provider.AMQP.ReleaseChannel(ch)
+	_, _, amqpChan := ch.GetInfo()
 
-	con, ch, cha := q.Provider.AMQP.GetChannel()
-	defer q.Provider.AMQP.ReleaseChannel(con, ch)
-
-	return cha.ExchangeBind(
+	return amqpChan.ExchangeBind(
 		dest,  // destination
 		rkey,  // routing key
 		src,   // source

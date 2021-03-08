@@ -5,8 +5,6 @@ import (
 
 	"github.com/pegasus-cloud/msgqueue_client/msgqueue/common"
 	"github.com/pegasus-cloud/msgqueue_client/msgqueue/rabbitmq"
-
-	"github.com/streadway/amqp"
 )
 
 // QueueFunc interface
@@ -24,8 +22,8 @@ type Provider interface {
 	Connect() error
 	Close()
 	Queue() interface{}
-	GetChannel() (con, ch int, cha *amqp.Channel)
-	ReleaseChannel(con, ch int)
+	// GetChannel() (con, ch int, cha *amqp.Channel)
+	// ReleaseChannel(con, ch int)
 }
 
 // Queue output queue method
@@ -63,17 +61,17 @@ func ManualNew(p Provider) {
 	}
 }
 
-// GetChannel get channel in connection pool
-func GetChannel() (con, ch int, cha *amqp.Channel) {
+// // GetChannel get channel in connection pool
+// func GetChannel() (con, ch int, cha *amqp.Channel) {
 
-	return provider.GetChannel()
-}
+// 	return provider.GetChannel()
+// }
 
-// ReleaseChannel release channel back to connection pool
-func ReleaseChannel(con, ch int) {
-	provider.ReleaseChannel(con, ch)
-	return
-}
+// // ReleaseChannel release channel back to connection pool
+// func ReleaseChannel(con, ch int) {
+// 	provider.ReleaseChannel(con, ch)
+// 	return
+// }
 
 // Setup ...
 func Setup() {

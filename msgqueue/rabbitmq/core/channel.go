@@ -1,12 +1,20 @@
 package core
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"time"
 
 	"github.com/streadway/amqp"
 )
+
+// Channel ...
+type Channel struct {
+	connNum int
+	chaNum  int
+	cha     *amqp.Channel
+}
 
 func (a *AMQP) makeChannel(con, ch int) (err error) {
 	conn := a.amqpConn[con]
@@ -26,7 +34,13 @@ func (a *AMQP) makeChannel(con, ch int) (err error) {
 }
 
 // GetChannel return channel of msgqueue
-func (a *AMQP) GetChannel() (con, ch int, cha *amqp.Channel) {
+func (a *AMQP) GetChannel() *Channel {
+	var (
+		con int
+		ch  int
+		cha *amqp.Channel
+	)
+
 	rand.Seed(time.Now().UnixNano())
 	for {
 		con = rand.Intn(a.ConnectionNum)
@@ -45,12 +59,25 @@ func (a *AMQP) GetChannel() (con, ch int, cha *amqp.Channel) {
 		a.idleChannel[con] = []int{}
 	}
 	l.Unlock()
-	return
+
+	return &Channel{
+		connNum: con,
+		chaNum:  ch,
+		cha:     cha,
+	}
 }
 
 // ReleaseChannel release channel resource
-func (a *AMQP) ReleaseChannel(con, ch int) (err error) {
-	err = a.amqpConn[con].channel[ch].Close()
+func (a *AMQP) ReleaseChannel(ch *Channel) (err error) {
+	if ch == nil {
+		return errors.New("invalid input")
+	}
+	err = a.amqpConn[ch.connNum].channel[ch.chaNum].Close()
 
 	return
+}
+
+// GetInfo ...
+func (ch *Channel) GetInfo() (connNum int, chaNum int, cha *amqp.Channel) {
+	return ch.connNum, ch.chaNum, ch.cha
 }

@@ -2,35 +2,39 @@ package rabbitmq
 
 import (
 	"errors"
-	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // SendRPC send rpc message and wait for receiving correlation id
 func (q *QueueMethod) SendRPC(name, rKey, replyTo, payload string) (res string, err error) {
-	con, ch, cha := q.Provider.AMQP.GetChannel()
-	qname, err := q.Provider.AMQP.CreateExclusiveQueue(replyTo, cha)
+	ch := q.Provider.AMQP.GetChannel()
+	defer q.Provider.AMQP.ReleaseChannel(ch)
+
+	qname, msgs, err := ch.ExclusiveConsume(replyTo)
 	if err != nil {
 		return "", err
 	}
-	cid := qname
+	uid, _ := uuid.NewRandom()
+	cid := uid.String()
+
 	if err := q.Provider.AMQP.PublishRPC(name, rKey, qname, cid, payload); err != nil {
 		return "", err
 	}
-	msgs, err := q.Provider.AMQP.Consume(qname, 1, cha)
-	if err != nil {
-		fmt.Println(err)
-	}
+
+	timer := time.NewTimer(time.Duration(q.Provider.AMQP.RPCTimeout) * time.Second)
+	defer timer.Stop()
+
 	for {
 		select {
 		case data := <-msgs:
 			if data.CorrelationId == cid {
 				res = string(data.Body)
 				data.Ack(false)
-				q.Provider.AMQP.ReleaseChannel(con, ch)
 				return res, nil
 			}
-		case <-time.After(time.Duration(q.Provider.AMQP.RPCTimeout) * time.Second):
+		case <-timer.C:
 			return "", errors.New("amqp rpc timeout")
 		}
 	}
