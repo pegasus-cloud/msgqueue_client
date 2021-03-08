@@ -13,8 +13,9 @@ func (q *QueueMethod) ReceiveMessage(name string, tgtsize int, del common.Checki
 		size = 0
 	)
 
-	con, ch, cha := q.Provider.AMQP.GetChannel()
-	defer q.Provider.AMQP.ReleaseChannel(con, ch)
+	ch := q.Provider.AMQP.GetChannel()
+	defer q.Provider.AMQP.ReleaseChannel(ch)
+	_, _, cha := ch.GetInfo()
 
 	for {
 		d, ok, err = cha.Get(name, false)

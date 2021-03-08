@@ -6,8 +6,6 @@ import (
 
 	"github.com/pegasus-cloud/msgqueue_client/msgqueue/rabbitmq/core"
 	"github.com/pegasus-cloud/msgqueue_client/msgqueue/utility"
-
-	"github.com/streadway/amqp"
 )
 
 // Provider ...
@@ -49,16 +47,16 @@ func (r *Provider) Connect() (err error) {
 	return nil
 }
 
-// GetChannel get channel in connection pool
-func (r *Provider) GetChannel() (con, ch int, cha *amqp.Channel) {
-	return r.AMQP.GetChannel()
-}
+// // GetChannel get channel in connection pool
+// func (r *Provider) GetChannel() (con, ch int, cha *amqp.Channel) {
+// 	return r.AMQP.GetChannel()
+// }
 
-// ReleaseChannel release channel back to connection pool
-func (r *Provider) ReleaseChannel(con, ch int) {
-	r.AMQP.ReleaseChannel(con, ch)
-	return
-}
+// // ReleaseChannel release channel back to connection pool
+// func (r *Provider) ReleaseChannel(con, ch int) {
+// 	r.AMQP.ReleaseChannel(con, ch)
+// 	return
+// }
 
 // Close the rabbitmq connection
 func (r *Provider) Close() {

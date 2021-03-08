@@ -30,6 +30,7 @@ func (a *AMQP) reConnect(con, ch int) {
 		for {
 			select {
 			case <-a.amqpConn[con].quit:
+				a.isClosed(con)
 				return
 			case <-a.amqpConn[con].connNotify:
 				if ch < 0 {
